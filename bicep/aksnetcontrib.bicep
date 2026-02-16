@@ -17,15 +17,15 @@ var existingAksPodSubnetName = !empty(byoAKSPodSubnetId) ? split(byoAKSPodSubnet
 var existingAksSubnetName = !empty(byoAKSSubnetId) ? split(byoAKSSubnetId, '/')[10] : ''
 var existingAksVnetName = !empty(byoAKSSubnetId) ? split(byoAKSSubnetId, '/')[8] : ''
 
-resource existingvnet 'Microsoft.Network/virtualNetworks@2023-04-01' existing =  {
+resource existingvnet 'Microsoft.Network/virtualNetworks@2025-05-01' existing =  {
   name: existingAksVnetName
 }
-resource existingAksSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing = {
+resource existingAksSubnet 'Microsoft.Network/virtualNetworks/subnets@2025-05-01' existing = {
   parent: existingvnet
   name: existingAksSubnetName
 }
 
-resource existingAksPodSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-09-01' existing = {
+resource existingAksPodSubnet 'Microsoft.Network/virtualNetworks/subnets@2025-05-01' existing = {
   parent: existingvnet
   name: existingAksPodSubnetName
 }

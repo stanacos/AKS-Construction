@@ -45,7 +45,7 @@ on:
         required: false
         type: string
       CERTMANAGERVERSION:
-        default: "v1.5.3"
+        default: "v1.17.4"
         required: false
         type: string
       UNINSTALLAFTERVERIFY:
@@ -192,7 +192,7 @@ jobs:
       - name: Install Cert Manager
         if: startsWith(inputs.FRONTENDCERTTYPE, 'certmanager' )
         env:
-          MANIFESTTESTURL: "https://github.com/jetstack/cert-manager/releases/download/${{ inputs.CERTMANAGERVERSION }}/cert-manager.yaml"
+          MANIFESTTESTURL: "https://github.com/cert-manager/cert-manager/releases/download/${{ inputs.CERTMANAGERVERSION }}/cert-manager.yaml"
         run: |
           kubectl apply -f $MANIFESTTESTURL
           sleep 1m

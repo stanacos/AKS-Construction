@@ -26,7 +26,7 @@ on:
         default: true
         required: false
       CERTMANAGERVERSION:
-        default: "v1.8.0"
+        default: "v1.17.4"
         required: false
         type: string
       CERTMANAGEREMAIL:
@@ -75,7 +75,7 @@ jobs:
       - name: Install Cert Manager and ClusterIssuer
         if: inputs.CERTMANAGER
         env:
-          CERTMANAGERURI: "https://github.com/jetstack/cert-manager/releases/download/${{ inputs.CERTMANAGERVERSION }}/cert-manager.yaml"
+          CERTMANAGERURI: "https://github.com/cert-manager/cert-manager/releases/download/${{ inputs.CERTMANAGERVERSION }}/cert-manager.yaml"
           CERTMANAGERISSUERURI: "${{ inputs.HELMCERTMANAGERISSUERURI }}"
           EMAILAD: "${{ inputs.CERTMANAGEREMAIL }}"
         run: sh postdeploy/scripts/certmanager-install.sh

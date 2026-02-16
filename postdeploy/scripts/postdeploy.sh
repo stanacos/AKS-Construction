@@ -386,15 +386,7 @@ if [ "$certEmail" ]; then
     echo "# ------------------------------------------------"
     echo "#                             Install cert-manager"
 
-    #certMan_Version="v1.8.2"
-    # NOT Needed anymore!
-    #if [ "$ingress" = "appgw" ]; then
-    #    echo "Downgrading cert-manager for AppGateway IC"
-    #    certMan_Version="v1.5.3"
-    #fi
-
-
-    kubectl apply -f "https://$(get_image_property "cert_manager.1_8_2.github_https_url")"
+    kubectl apply -f "https://$(get_image_property "cert_manager.1_17_4.github_https_url")"
     sleep 30s # wait for cert-manager webhook to install
 
     helm upgrade --install letsencrypt-issuer ${release_version:-./postdeploy/helm}/Az-CertManagerIssuer-0.3.0.tgz \

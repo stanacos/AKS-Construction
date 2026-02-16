@@ -287,7 +287,10 @@ export default function DeployTab({ defaults, updateFn, tabValues, invalidArray,
 
   const cardSpecificWorkloadDeployCmd = deploy.workloadDeployCommands && deploy.workloadDeployCommands.length>0 ? deploy.workloadDeployCommands.map(w => w).join('\n').replace(/\$RESOURCEGROUP/g,deploy.rg).replace(/\$AKSNAME/g, aks) : ''
 
+  const subscriptionCmd = deploy.subscription ? `# Set the active subscription\naz account set --subscription ${deploy.subscription}\n\n` : ''
+
   const deployBASHcmd =
+    subscriptionCmd +
     `# Create Resource Group\n` +
     `az group create -l ${deploy.location} -n ${deploy.rg}\n\n` + networkWatcher +
     `# Deploy template with in-line parameters\n` +
@@ -326,6 +329,7 @@ export default function DeployTab({ defaults, updateFn, tabValues, invalidArray,
     (displayPostCmd) ? privateCluster : ''
 
   const deployPScmd =
+    subscriptionCmd +
     `# Create Resource Group\n` +
     `az group create -l ${deploy.location} -n ${deploy.rg}\n\n` + networkWatcher +
     `# Deploy template with in-line parameters\n` +

@@ -6,8 +6,9 @@ expect.extend(matchers);
 
 const chk = '+ label > .ms-Checkbox-checkbox > .ms-Checkbox-checkmark' //fluentui dom hack to navigate to the checkbox
 
-test('networkpolicy-test-defaul-is-azure', async ({ page }) => {
-  await page.goto('http://localhost:3000/AKS-Construction');
+test('bastion-checkbox-enables-bastion-in-deploy-command', async ({ page }) => {
+  // Use custom vnet so bastion parameter is emitted in deploy command
+  await page.goto('http://localhost:3000/AKS-Construction?net.vnet_opt=custom');
 
   //Is the CLI textarea there and visible?
   const cliboxvis = await page.isVisible('[data-testid="deploy-deploycmd"]');
@@ -19,10 +20,10 @@ test('networkpolicy-test-defaul-is-azure', async ({ page }) => {
   await expect(clitextbox).toBeVisible()
   await expect(clitextbox).not.toContainText('bastion');
 
-  //But i am expecting the customvnet parameter to be there
+  //But custom_vnet should be present
   await expect(clitextbox).toContainText('custom_vnet=true')
 
-  // Click the 4rd Tab in the portal Navigation Pivot (networking)
+  // Click the 4th Tab in the portal Navigation Pivot (networking)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(4)')
 
   //Inspect the bastion checkbox, make sure its unchecked

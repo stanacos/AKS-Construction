@@ -4,24 +4,10 @@ const { matchers } = require('playwright-expect');
 // add custom matchers
 expect.extend(matchers);
 
-test('default-outbound-option-with-preset-to-be-load-balancer', async ({ page }) => {
+test('default-outbound-option-is-natgateway', async ({ page }) => {
 
+  // The lean preset does not override aksOutboundTrafficType, so config.json default (natGateway) applies
   await page.goto('http://localhost:3000/AKS-Construction');
-
-  // Click the 4th Tab in the portal Navigation Pivot (network)
-  await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(4)');
-
-  // Check default value (preset 'secure:normal' overrides config.json default of natGateway to loadBalancer)
-  const dropdown = await page.waitForSelector('[data-testid="net-aksEgressType"]')
-  await expect(dropdown).toBeVisible()
-  await expect(dropdown).toMatchText('Load Balancer')
-
-});
-
-test('natgw-is-config-default-when-no-preset-overrides', async ({ page }) => {
-
-  // Use secure=low preset which does not override aksOutboundTrafficType, so config.json default (natGateway) applies
-  await page.goto('http://localhost:3000/AKS-Construction?secure=low');
 
   // Click the 4th Tab in the portal Navigation Pivot (network)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(4)');
@@ -41,5 +27,3 @@ test('natgw-is-config-default-when-no-preset-overrides', async ({ page }) => {
   await expect(clitextbox).not.toContainText('natGateway')
 
 });
-
- //TODO: Change value and check (this is a real pain with the DropDown control)

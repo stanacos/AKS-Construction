@@ -113,7 +113,7 @@ export default function PortalNav({ config }) {
   const [urlParams, setUrlParams] = useState(new URLSearchParams(window.location.search))
   const [invalidArray, setInvalidArray] = useState(() => Object.keys(defaults).reduce((a, c) => { return { ...a, [c]: [] } }, {}))
   // The selected cards within the sections for the chosen preset, for example { "ops": "normal", "secure": "high" }
-  const [selected, setSelected] = useState(initSelected(urlParams.get('preset') || 'defaultOps'))
+  const [selected, setSelected] = useState(initSelected(urlParams.get('preset') || 'lean'))
   useAITracking("PageNav", selected.preset)
   // The tabValues, for example { "deploy": { "clusterName": "az234"}}
   const [tabValues, setTabValues] = useState(initTabValues(selected, defaults, true))

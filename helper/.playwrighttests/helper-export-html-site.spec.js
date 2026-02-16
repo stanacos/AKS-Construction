@@ -5,11 +5,11 @@ test('localsite', async ({ page }) => {
 
   await page.goto('http://localhost:3000/AKS-Construction');
 
-  //Wait for the stack
-  const stackops='[data-testid="stackops"]';
-  await page.waitForSelector(stackops)
+  //Wait for the preset section stack to render
+  const stacklabenv='[data-testid="stacklabenv"]';
+  await page.waitForSelector(stacklabenv)
 
-  //Save the contents of the az cmd box to file
+  //Save the contents of the page to file
   const pageHtml = await page.content();
 
   console.log(pageHtml);
@@ -21,11 +21,10 @@ test('prodsite', async ({ page }) => {
 
   await page.goto('https://azure.github.io/AKS-Construction/');
 
-  //Wait for the stack
-  const stackops='[data-testid="stackops"]';
-  await page.waitForSelector(stackops)
+  //Wait for the main content to render
+  await page.waitForSelector('#mainContent')
 
-  //Save the contents of the az cmd box to file
+  //Save the contents of the page to file
   const pageHtml = await page.content();
 
   console.log(pageHtml);

@@ -5,7 +5,7 @@ const { matchers } = require('playwright-expect');
 expect.extend(matchers);
 
 // Tests verify config.json defaults match Bicep parameter defaults (REQ-003).
-// Uses secure=low preset to avoid preset overrides on networking fields.
+// Uses the lean preset (default) which has minimal overrides on networking fields.
 
 test('config-default-kubernetesVersion', async ({ page }) => {
   await page.goto('http://localhost:3000/AKS-Construction');
@@ -34,7 +34,8 @@ test('config-default-osSKU-is-AzureLinux', async ({ page }) => {
 });
 
 test('config-default-networkPluginMode-is-overlay', async ({ page }) => {
-  await page.goto('http://localhost:3000/AKS-Construction?secure=low');
+  // The lean preset does not override networking defaults, so config.json defaults apply
+  await page.goto('http://localhost:3000/AKS-Construction');
 
   // Click deploy tab
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(1)');
@@ -47,7 +48,8 @@ test('config-default-networkPluginMode-is-overlay', async ({ page }) => {
 });
 
 test('config-default-networkDataplane-is-cilium', async ({ page }) => {
-  await page.goto('http://localhost:3000/AKS-Construction?secure=low');
+  // The lean preset does not override networking defaults, so config.json defaults apply
+  await page.goto('http://localhost:3000/AKS-Construction');
 
   // Click deploy tab
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(1)');
@@ -60,7 +62,8 @@ test('config-default-networkDataplane-is-cilium', async ({ page }) => {
 });
 
 test('config-default-natGw-values-match-bicep', async ({ page }) => {
-  await page.goto('http://localhost:3000/AKS-Construction?secure=low');
+  // The lean preset does not override egress type, so config.json default (natGateway) applies
+  await page.goto('http://localhost:3000/AKS-Construction');
 
   // Click the network tab (4th tab)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(4)');

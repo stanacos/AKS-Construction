@@ -9,22 +9,13 @@ import { mergeStyles } from '@fluentui/react';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 // Config
-// TODO: Can we iterate over every json file in the configpresets directory?
 import baseConfig from "./config.json";
-import principalConfig from "./configpresets/principals.json"
-import entScaleConfig from "./configpresets/entScale.json"
-import baselineConfig from "./configpresets/baselines.json"
-import gamingConfig from "./configpresets/gaming.json"
 import labConfig from "./configpresets/lab.json"
 import secureLabConfig from "./configpresets/securelab.json"
 
 const configData = {
   ...baseConfig,
   presets: {
-    ...principalConfig,
-    ...entScaleConfig,
-    ...baselineConfig,
-    ...gamingConfig,
     ...labConfig,
     ...secureLabConfig
   }

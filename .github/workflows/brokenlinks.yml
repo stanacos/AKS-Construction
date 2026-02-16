@@ -42,7 +42,6 @@ jobs:
           npx playwright install
           npx playwright install-deps chromium
           npm install -D @playwright/test
-          npm i -D playwright-expect
 
       - name: Verifying Playwright install
         run: |

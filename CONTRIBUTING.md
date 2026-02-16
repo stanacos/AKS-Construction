@@ -142,7 +142,6 @@ Running the playwright tests after starting the Wizard web app
 cd helper
 npx playwright install
 npx playwright install-deps chromium
-npm i -D playwright-expect
 npx playwright test --browser chromium .playwrighttests/ --reporter list
 ```
 

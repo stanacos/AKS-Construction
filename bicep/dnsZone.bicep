@@ -7,7 +7,7 @@ resource dns 'Microsoft.Network/dnsZones@2018-05-01' existing = if (!isPrivate) 
   name: dnsZoneName
 }
 
-resource privateDns 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if (isPrivate) {
+resource privateDns 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (isPrivate) {
   name: dnsZoneName
 }
 
@@ -33,7 +33,7 @@ resource privateDnsContributor 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
-resource dns_vnet_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (isPrivate && !empty(vnetId)) {
+resource dns_vnet_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (isPrivate && !empty(vnetId)) {
   parent: privateDns
   name: 'privatedns'
   tags: {}

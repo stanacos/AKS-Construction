@@ -1,0 +1,73 @@
+{
+    "lean": {
+        "title": "Lab",
+        "description": "Lean AKS configurations for personal lab and development use",
+        "icon": "TestBeaker",
+        "sections": [
+            {
+                "key": "labenv",
+                "sectionTitle": "Lab Environment",
+                "sectionDescription": "Lightweight AKS clusters optimized for personal lab use. Minimal Azure services, low cost, and fast provisioning.",
+                "cards": [
+                    {
+                        "key": "yourlab",
+                        "default": true,
+                        "title": "Lab Cluster",
+                        "description": {
+                            "title": "Lean AKS cluster for experimentation and learning. No monitoring, no registry, no ingress — just Kubernetes.",
+                            "bulets": [
+                                {
+                                    "description": "Autoscale 1-3 nodes"
+                                },
+                                {
+                                    "description": "Stable auto-upgrade channel",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-cluster"
+                                },
+                                {
+                                    "description": "No monitoring or logging"
+                                },
+                                {
+                                    "description": "No container registry"
+                                },
+                                {
+                                    "description": "No ingress controller"
+                                },
+                                {
+                                    "description": "AAD Integration with Azure RBAC",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/managed-azure-ad"
+                                }
+                            ]
+                        },
+                        "icon": "TestBeaker",
+                        "values": {
+                            "deploy": {
+                                "workloadDeployCommands": []
+                            },
+                            "cluster": {
+                                "autoscale": true,
+                                "agentCount": 1,
+                                "maxCount": 3,
+                                "upgradeChannel": "stable",
+                                "AksPaidSkuForSLA": false,
+                                "DefenderForContainers": false
+                            },
+                            "addons": {
+                                "registry": "none",
+                                "ingress": "none",
+                                "monitor": "none",
+                                "networkPolicy": "none",
+                                "azurepolicy": "none",
+                                "csisecret": "none"
+                            },
+                            "net": {
+                                "vnet_opt": "default",
+                                "vnetprivateend": false,
+                                "afw": false
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

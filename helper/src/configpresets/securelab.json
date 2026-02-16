@@ -1,0 +1,87 @@
+{
+    "secureLab": {
+        "title": "Secure Lab",
+        "description": "Security-focused AKS configurations for lab and development use",
+        "icon": "Shield",
+        "sections": [
+            {
+                "key": "seclab",
+                "sectionTitle": "Secure Lab Environment",
+                "sectionDescription": "AKS clusters with security best practices enabled. Includes identity, policy, network security, monitoring, and secrets management — suitable for security-conscious lab and dev environments.",
+                "cards": [
+                    {
+                        "key": "yourSecureLab",
+                        "default": true,
+                        "title": "Secure Lab Cluster",
+                        "description": {
+                            "title": "AKS cluster with security essentials: AAD+RBAC, Azure Policy, Cilium network policy, monitoring, Key Vault CSI, and workload identity.",
+                            "bulets": [
+                                {
+                                    "description": "Autoscale 1-3 nodes"
+                                },
+                                {
+                                    "description": "AAD Integration with Azure RBAC",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/managed-azure-ad"
+                                },
+                                {
+                                    "description": "Azure Policy (audit mode)",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/governance/policy/concepts/policy-for-kubernetes"
+                                },
+                                {
+                                    "description": "Cilium network policy",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/azure-cni-powered-by-cilium"
+                                },
+                                {
+                                    "description": "Basic Azure Container Registry"
+                                },
+                                {
+                                    "description": "Azure Monitor for Containers",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-overview"
+                                },
+                                {
+                                    "description": "Store Kubernetes Secrets in Azure Key Vault",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver"
+                                },
+                                {
+                                    "description": "Workload Identity",
+                                    "linksrc": "https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview"
+                                }
+                            ]
+                        },
+                        "icon": "Shield",
+                        "values": {
+                            "deploy": {
+                                "workloadDeployCommands": []
+                            },
+                            "cluster": {
+                                "enable_aad": true,
+                                "enableAzureRBAC": true,
+                                "autoscale": true,
+                                "agentCount": 1,
+                                "maxCount": 3,
+                                "AksPaidSkuForSLA": false,
+                                "DefenderForContainers": false
+                            },
+                            "addons": {
+                                "azurepolicy": "audit",
+                                "networkPolicy": "cilium",
+                                "registry": "Basic",
+                                "monitor": "aci",
+                                "csisecret": "akvNew",
+                                "workloadIdentity": true,
+                                "ingress": "none"
+                            },
+                            "net": {
+                                "vnet_opt": "default",
+                                "vnetprivateend": false,
+                                "afw": false,
+                                "networkPluginMode": true,
+                                "networkDataplane": true
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

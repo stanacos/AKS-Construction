@@ -16,6 +16,7 @@ import entScaleConfig from "./configpresets/entScale.json"
 import baselineConfig from "./configpresets/baselines.json"
 import gamingConfig from "./configpresets/gaming.json"
 import labConfig from "./configpresets/lab.json"
+import secureLabConfig from "./configpresets/securelab.json"
 
 const configData = {
   ...baseConfig,
@@ -24,7 +25,8 @@ const configData = {
     ...entScaleConfig,
     ...baselineConfig,
     ...gamingConfig,
-    ...labConfig
+    ...labConfig,
+    ...secureLabConfig
   }
 };
 

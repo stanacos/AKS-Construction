@@ -13,6 +13,7 @@ import DeployTab from './deployTab'
 import AppsTab from './appsTab'
 
 import { appInsights } from '../index.js'
+import { generateNintendoClusterName } from '../nintendoNames'
 import { initializeIcons } from '@fluentui/react/lib/Icons';
 import { PreviewDialog } from './previewDialog';
 initializeIcons();
@@ -148,7 +149,7 @@ export default function PortalNav({ config }) {
       , baseTabValues)
 
     if (resetDynamic) {
-      const clusterName = `az-k8s-${(Math.floor(Math.random() * 900000) + 100000).toString(36)}`
+      const clusterName = generateNintendoClusterName()
       // Apply dynamic presets to tab values
       tabApplySections = {
         ...tabApplySections,

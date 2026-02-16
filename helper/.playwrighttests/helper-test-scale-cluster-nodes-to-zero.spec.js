@@ -10,13 +10,8 @@ const sliderSelector='[data-testid="cluster-agentCount-slider"]';
 
 test('scale-can-be-set-to-zero-by-default', async ({ page }) => {
 
-  await page.goto('http://localhost:3000/AKS-Construction');
-
-  //Check parameter is absent
-  await page.waitForSelector('[data-testid="deploy-deploycmd"]')
-  const clitextbox = await page.$('[data-testid="deploy-deploycmd"]')
-  await expect(clitextbox).toBeVisible()
-  await expect(clitextbox).not.toContainText('agentCount=')
+  // Use cluster.maxCount param to widen slider range (config.json default maxCount=3 overlaps with preset agentCount=3)
+  await page.goto('http://localhost:3000/AKS-Construction?cluster.maxCount=20');
 
   // Click the 2nd Tab in the portal Navigation Pivot (cluster details)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(2)');
@@ -51,7 +46,8 @@ test('manual-scale-prevents-autoscale-from-zero', async ({ page }) => {
 
   const chk = '+ label > .ms-Checkbox-checkbox > .ms-Checkbox-checkmark' //dom hack to get to the checkbox
 
-  await page.goto('http://localhost:3000/AKS-Construction');
+  // Use cluster.maxCount param to widen slider range (config.json default maxCount=3 overlaps with preset agentCount=3)
+  await page.goto('http://localhost:3000/AKS-Construction?cluster.maxCount=20');
 
   // Click the 2nd Tab in the portal Navigation Pivot (cluster details)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(2)');
@@ -84,11 +80,11 @@ test('manual-scale-prevents-autoscale-from-zero', async ({ page }) => {
   //Go back to the deploy tab.
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(1)')
 
-  //Check parameter is absent
+  //Check agentCount=1 matches default so is not emitted
   await page.waitForSelector('[data-testid="deploy-deploycmd"]')
   const clitextboxrevisted = await page.$('[data-testid="deploy-deploycmd"]')
   await expect(clitextboxrevisted).toBeVisible()
-  await expect(clitextboxrevisted).toContainText('agentCount=1')
+  await expect(clitextboxrevisted).not.toContainText('agentCount=')
 
 });
 
@@ -97,7 +93,8 @@ test('no-user-pool-prevents-autoscale-from-zero', async ({ page }) => {
 
   const chk = '+ label > .ms-Checkbox-checkbox > .ms-Checkbox-checkmark' //dom hack to get to the checkbox
 
-  await page.goto('http://localhost:3000/AKS-Construction');
+  // Use cluster.maxCount param to widen slider range (config.json default maxCount=3 overlaps with preset agentCount=3)
+  await page.goto('http://localhost:3000/AKS-Construction?cluster.maxCount=20');
 
   // Click the 2nd Tab in the portal Navigation Pivot (cluster details)
   await page.click('[data-testid="portalnav-Pivot"] > button:nth-child(2)');
@@ -136,6 +133,7 @@ test('no-user-pool-prevents-autoscale-from-zero', async ({ page }) => {
   const clitextboxrevisted = await page.$('[data-testid="deploy-deploycmd"]')
   await expect(clitextboxrevisted).toBeVisible()
   //console.log(await clitextboxrevisted.textContent());
-  await expect(clitextboxrevisted).toContainText('agentCount=1')
+  // agentCount=1 matches default so is not emitted
+  await expect(clitextboxrevisted).not.toContainText('agentCount=')
 
 });

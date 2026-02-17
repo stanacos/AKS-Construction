@@ -36,8 +36,15 @@ export function CodeBlock({deploycmd, testId, lang, filename, error, hideSave}) 
     function downloadIt(){
         //console.log("AI:- Button.Save." + testId)
         appInsights.trackEvent({name: "Button.Save."+ testId});
-        function dataUrl(data) {return "data:x-application/text," + escape(deploycmd);}
-        window.open(dataUrl());
+        const blob = new Blob([deploycmd], { type: 'text/x-shellscript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'script.sh';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
     const onCopyDeployHandler = () => {

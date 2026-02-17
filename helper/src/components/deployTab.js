@@ -1,8 +1,9 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
-import {  Checkbox, Pivot, PivotItem, Image, TextField, Link, Separator, Dropdown, Stack, Text, Label, MessageBar, MessageBarType } from '@fluentui/react';
+import {  Checkbox, Pivot, PivotItem, Image, TextField, Link, Separator, Dropdown, Stack, Text, Label, MessageBar, MessageBarType, PrimaryButton } from '@fluentui/react';
 
 import { CodeBlock, adv_stackstyle, getError } from './common'
+import { appInsights } from '../index.js'
 import dependencies from "../dependencies.json";
 import locations from '../locations.json';
 
@@ -300,6 +301,94 @@ export default function DeployTab({ defaults, updateFn, tabValues, invalidArray,
     '\n\n' +
     (displayPostCmd || deploy.getCredentials ? post_deployBASHstr : '')
 
+  // Post-deploy script for Gateway API, kube-prometheus-stack, cert-manager, and Istio Ambient Mesh
+  const postDeployCustomCmd =
+    `#!/usr/bin/env bash\nset -euo pipefail\n\n` +
+    `# === AKS Credentials ===\n` +
+    (deploy.subscription ? `az account set --subscription ${deploy.subscription}\n` : '') +
+    `az aks get-credentials --resource-group ${deploy.rg} --name ${aks} --overwrite-existing\n` +
+    `kubelogin convert-kubeconfig -l azurecli\n\n` +
+    `# === Gateway API (Experimental Channel) ===\n` +
+    `kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/experimental-install.yaml\n\n` +
+    `# === kube-prometheus-stack ===\n` +
+    `helm repo add prometheus-community https://prometheus-community.github.io/helm-charts\n` +
+    `helm repo update\n` +
+    `helm install prom prometheus-community/kube-prometheus-stack \\\n` +
+    `  --namespace prometheus \\\n` +
+    `  --create-namespace \\\n` +
+    `  --wait\n\n` +
+    `# === cert-manager ===\n` +
+    `helm repo add jetstack https://charts.jetstack.io --force-update\n` +
+    `helm install cert-manager jetstack/cert-manager \\\n` +
+    `  --namespace cert-manager \\\n` +
+    `  --create-namespace \\\n` +
+    `  --set crds.enabled=true \\\n` +
+    `  --wait\n\n` +
+    `# === Istio Ambient Mesh ===\n` +
+    `helm repo add istio https://istio-release.storage.googleapis.com/charts\n` +
+    `helm repo update\n\n` +
+    `# Base CRDs and cluster roles\n` +
+    `helm install istio-base istio/base \\\n` +
+    `  -n istio-system \\\n` +
+    `  --create-namespace \\\n` +
+    `  --wait\n\n` +
+    `# Istiod control plane (ambient profile)\n` +
+    `helm install istiod istio/istiod \\\n` +
+    `  -n istio-system \\\n` +
+    `  --set profile=ambient \\\n` +
+    `  --wait\n\n` +
+    `# CNI node agent (ambient profile)\n` +
+    `helm install istio-cni istio/cni \\\n` +
+    `  -n istio-system \\\n` +
+    `  --set profile=ambient \\\n` +
+    `  --wait\n\n` +
+    `# ztunnel DaemonSet (L4 mTLS data plane)\n` +
+    `helm install ztunnel istio/ztunnel \\\n` +
+    `  -n istio-system \\\n` +
+    `  --wait\n\n` +
+    `# === Enroll default namespace in ambient mesh (L4 mTLS via ztunnel) ===\n` +
+    `kubectl label namespace default istio.io/dataplane-mode=ambient --overwrite\n\n` +
+    `# === Ingress Gateway (north-south — auto-provisioned LoadBalancer) ===\n` +
+    `kubectl create namespace istio-ingress\n` +
+    `kubectl apply -f - <<'INGRESS_EOF'\n` +
+    `apiVersion: gateway.networking.k8s.io/v1\n` +
+    `kind: Gateway\n` +
+    `metadata:\n` +
+    `  name: aks-gateway\n` +
+    `  namespace: istio-ingress\n` +
+    `spec:\n` +
+    `  gatewayClassName: istio\n` +
+    `  listeners:\n` +
+    `    - name: http\n` +
+    `      port: 80\n` +
+    `      protocol: HTTP\n` +
+    `      allowedRoutes:\n` +
+    `        namespaces:\n` +
+    `          from: All\n` +
+    `INGRESS_EOF\n\n` +
+    `kubectl wait gateway/aks-gateway -n istio-ingress --for=condition=Programmed --timeout=120s\n\n` +
+    `# Gateway public IP (Azure LoadBalancer)\n` +
+    `kubectl get svc aks-gateway-istio -n istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'\n` +
+    `echo ""\n\n` +
+    `# === Waypoint Proxy (east-west L7 policy for default namespace) ===\n` +
+    `kubectl apply -f - <<'WAYPOINT_EOF'\n` +
+    `apiVersion: gateway.networking.k8s.io/v1\n` +
+    `kind: Gateway\n` +
+    `metadata:\n` +
+    `  name: waypoint\n` +
+    `  namespace: default\n` +
+    `  labels:\n` +
+    `    istio.io/waypoint-for: service\n` +
+    `spec:\n` +
+    `  gatewayClassName: istio-waypoint\n` +
+    `  listeners:\n` +
+    `    - name: mesh\n` +
+    `      port: 15008\n` +
+    `      protocol: HBONE\n` +
+    `WAYPOINT_EOF\n\n` +
+    `kubectl wait gateway/waypoint -n default --for=condition=Programmed --timeout=120s\n` +
+    `kubectl label namespace default istio.io/use-waypoint=waypoint --overwrite`
+
   //Powershell (Remember to align any changes with Bash)
   const preview_post_deployPScmd = Object.keys(preview_post_params).map(k => {
     const val = preview_post_params[k]
@@ -417,6 +506,33 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
   }
 
   console.log (`deploy.deployItemKey=${deploy.deployItemKey}`)
+
+  function downloadScripts() {
+    appInsights.trackEvent({ name: "Button.GenerateScripts" });
+
+    const blob1 = new Blob([deployBASHcmd], { type: 'text/x-shellscript' });
+    const url1 = URL.createObjectURL(blob1);
+    const a1 = document.createElement('a');
+    a1.href = url1;
+    a1.download = '01-deploy.sh';
+    document.body.appendChild(a1);
+    a1.click();
+    document.body.removeChild(a1);
+    URL.revokeObjectURL(url1);
+
+    setTimeout(() => {
+      const blob2 = new Blob([postDeployCustomCmd], { type: 'text/x-shellscript' });
+      const url2 = URL.createObjectURL(blob2);
+      const a2 = document.createElement('a');
+      a2.href = url2;
+      a2.download = '02-postdeploy.sh';
+      document.body.appendChild(a2);
+      a2.click();
+      document.body.removeChild(a2);
+      URL.revokeObjectURL(url2);
+    }, 300);
+  }
+
   return (
 
     <Stack tokens={{ childrenGap: 15 }} styles={adv_stackstyle}>
@@ -480,6 +596,24 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
 
       </Stack>
 
+      { deploy.subscription &&
+        <Stack horizontal horizontalAlign="center" styles={{ root: { marginTop: '20px' } }}>
+          <PrimaryButton
+            data-testid="deploy-generate-scripts"
+            text="Generate Scripts"
+            iconProps={{ iconName: 'Download' }}
+            disabled={!allok}
+            onClick={downloadScripts}
+            styles={{
+              root: { backgroundColor: '#107c10', borderColor: '#107c10' },
+              rootHovered: { backgroundColor: '#0b6a0b', borderColor: '#0b6a0b' },
+              rootPressed: { backgroundColor: '#085108', borderColor: '#085108' },
+              rootDisabled: { backgroundColor: '#c8c8c8', borderColor: '#c8c8c8' },
+            }}
+          />
+        </Stack>
+      }
+
       <Separator styles={{ root: { marginTop: '30px !important' } }}><div style={{ display: "flex", alignItems: 'center', }}><b style={{ marginRight: '10px' }}>Deploy Cluster</b><Image src="./bicep.png" alt="Built with bicep" /> <p style={{ marginLeft: '10px' }}>powered by Bicep</p></div> </Separator>
 
 
@@ -511,7 +645,11 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
             </Stack.Item>
           </Stack>
 
-          <CodeBlock hideSave={true} lang="shell script"  error={allok ? false : 'Configuration not complete, please correct the tabs with the warning symbol before running'} deploycmd={deployBASHcmd} testId={'deploy-deploycmd'}/>
+          <CodeBlock lang="shell script" filename="01-deploy.sh" error={allok ? false : 'Configuration not complete, please correct the tabs with the warning symbol before running'} deploycmd={deployBASHcmd} testId={'deploy-deploycmd'}/>
+
+          { deploy.subscription &&
+            <CodeBlock lang="post-deploy shell script" filename="02-postdeploy.sh" error={allok ? false : 'Configuration not complete, please correct the tabs with the warning symbol before running'} deploycmd={postDeployCustomCmd} testId={'deploy-postdeploycmd'}/>
+          }
 
           { cardSpecificWorkloadDeployCmd.length > 0 &&
             <CodeBlock hideSave={true} lang="Workload Deployment shell script"  error={allok ? false : 'Configuration not complete, please correct the tabs with the warning symbol before running'} deploycmd={cardSpecificWorkloadDeployCmd} testId={'deploy-deploycmd'}/>

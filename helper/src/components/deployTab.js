@@ -1,14 +1,16 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React from 'react';
+import React, { useState } from 'react';
 import {  Checkbox, Pivot, PivotItem, Image, TextField, Link, Separator, Dropdown, Stack, Text, Label, MessageBar, MessageBarType, PrimaryButton } from '@fluentui/react';
 
-import { CodeBlock, adv_stackstyle, getError } from './common'
+import { CodeBlock, adv_stackstyle, getError, saveToProject } from './common'
 import { appInsights } from '../index.js'
 import dependencies from "../dependencies.json";
 import locations from '../locations.json';
 
 export default function DeployTab({ defaults, updateFn, tabValues, invalidArray, invalidTabs, urlParams, featureFlag }) {
   //const terraformFeatureFlag = featureFlag.includes('tf')
+
+  const [scriptsSaveStatus, setScriptsSaveStatus] = useState(null)
 
   const { net, addons, cluster, deploy } = tabValues
 
@@ -507,30 +509,41 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
 
   console.log (`deploy.deployItemKey=${deploy.deployItemKey}`)
 
-  function downloadScripts() {
+  async function downloadScripts() {
     appInsights.trackEvent({ name: "Button.GenerateScripts" });
 
-    const blob1 = new Blob([deployBASHcmd], { type: 'text/x-shellscript' });
-    const url1 = URL.createObjectURL(blob1);
-    const a1 = document.createElement('a');
-    a1.href = url1;
-    a1.download = '01-deploy.sh';
-    document.body.appendChild(a1);
-    a1.click();
-    document.body.removeChild(a1);
-    URL.revokeObjectURL(url1);
+    const scripts = [
+      { filename: '01-deploy.sh', content: deployBASHcmd },
+      { filename: '02-postdeploy.sh', content: postDeployCustomCmd }
+    ];
 
-    setTimeout(() => {
-      const blob2 = new Blob([postDeployCustomCmd], { type: 'text/x-shellscript' });
-      const url2 = URL.createObjectURL(blob2);
-      const a2 = document.createElement('a');
-      a2.href = url2;
-      a2.download = '02-postdeploy.sh';
-      document.body.appendChild(a2);
-      a2.click();
-      document.body.removeChild(a2);
-      URL.revokeObjectURL(url2);
-    }, 300);
+    // Try saving to project scripts/ folder via dev server API
+    const results = await Promise.all(
+      scripts.map(s => saveToProject(s.filename, s.content))
+    );
+
+    if (results.every(r => r.success)) {
+      setScriptsSaveStatus('saved');
+      setTimeout(() => setScriptsSaveStatus(null), 4000);
+      return;
+    }
+
+    // Fallback to blob download
+    scripts.forEach((s, i) => {
+      setTimeout(() => {
+        const blob = new Blob([s.content], { type: 'text/x-shellscript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = s.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, i * 300);
+    });
+    setScriptsSaveStatus('downloaded');
+    setTimeout(() => setScriptsSaveStatus(null), 4000);
   }
 
   return (
@@ -597,7 +610,7 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
       </Stack>
 
       { deploy.subscription &&
-        <Stack horizontal horizontalAlign="center" styles={{ root: { marginTop: '20px' } }}>
+        <Stack horizontalAlign="center" styles={{ root: { marginTop: '20px' } }} tokens={{ childrenGap: 8 }}>
           <PrimaryButton
             data-testid="deploy-generate-scripts"
             text="Generate Scripts"
@@ -611,6 +624,12 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
               rootDisabled: { backgroundColor: '#c8c8c8', borderColor: '#c8c8c8' },
             }}
           />
+          { scriptsSaveStatus === 'saved' &&
+            <MessageBar messageBarType={MessageBarType.success} isMultiline={false}>Scripts saved to <b>scripts/</b> folder</MessageBar>
+          }
+          { scriptsSaveStatus === 'downloaded' &&
+            <MessageBar messageBarType={MessageBarType.info} isMultiline={false}>Scripts downloaded to browser Downloads folder</MessageBar>
+          }
         </Stack>
       }
 

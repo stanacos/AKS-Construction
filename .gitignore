@@ -9,3 +9,5 @@ helper/localsite.html
 helper/prodsite.html
 helper/build/**
 container-azm-ms-agentconfig.yaml
+scripts/01-*.sh
+scripts/02-*.sh

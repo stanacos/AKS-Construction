@@ -21,9 +21,24 @@ export function getError(array, field) {
 
 export const adv_stackstyle = { root: { border: "1px solid", margin: "10px 0", padding: "15px" } }
 
+export async function saveToProject(filename, content) {
+    try {
+        const res = await fetch('/api/save-script', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename, content })
+        });
+        if (!res.ok) return { success: false };
+        return await res.json();
+    } catch {
+        return { success: false };
+    }
+}
+
 
 export function CodeBlock({deploycmd, testId, lang, filename, error, hideSave}) {
     const [ copied, setCopied ] = useState(false)
+    const [ saveStatus, setSaveStatus ] = useState(null)
 
     function copyIt() {
         //console.log("AI:- Button.Copy." + testId)
@@ -33,14 +48,22 @@ export function CodeBlock({deploycmd, testId, lang, filename, error, hideSave}) 
         setTimeout(() => setCopied(false), 1000)
     }
 
-    function downloadIt(){
+    async function downloadIt(){
         //console.log("AI:- Button.Save." + testId)
         appInsights.trackEvent({name: "Button.Save."+ testId});
+        const name = filename || 'script.sh';
+        const result = await saveToProject(name, deploycmd);
+        if (result.success) {
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus(null), 2000);
+            return;
+        }
+        // Fallback to blob download
         const blob = new Blob([deploycmd], { type: 'text/x-shellscript' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = filename || 'script.sh';
+        a.download = name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -59,9 +82,9 @@ export function CodeBlock({deploycmd, testId, lang, filename, error, hideSave}) 
             <CommandBarButton
               disabled={error}
               className="action position-relative"
-              iconProps={{ iconName: copied? 'Completed' : 'Save'}}
+              iconProps={{ iconName: saveStatus === 'saved' ? 'Completed' : 'Save'}}
               //styles={{icon: {color: '#171717'}}}
-              text={!error ? "Save" : ""}
+              text={!error ? (saveStatus === 'saved' ? 'Saved to scripts/' : 'Save') : ""}
               primaryActionButtonProps={{download: filename}}
               onClick={downloadIt}/>
             }

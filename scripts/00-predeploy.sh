@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HELPER_DIR="$(cd "$(dirname "$0")/helper" && pwd)"
+HELPER_DIR="$(cd "$(dirname "$0")/../helper" && pwd)"
 URL="http://localhost:3000/AKS-Construction"
 TIMEOUT=60
 NPM_PID=""

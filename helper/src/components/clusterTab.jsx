@@ -1,7 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
 import { mergeStyles, TextField, Link, Separator, DropdownMenuItemType, Dropdown, Slider, Stack, Text, Label, ChoiceGroup, Checkbox, MessageBar, MessageBarType } from '@fluentui/react';
-import { adv_stackstyle, getError, hasError } from './common'
+import { adv_stackstyle, getError, hasError } from './common.jsx'
 import vmSKUs from '../vmSKUs.json'
 
 const optionRootClass = mergeStyles({
@@ -12,7 +12,7 @@ const optionRootClass = mergeStyles({
 export var VMs = vmSKUs
 
 export default function ({ defaults, tabValues, updateFn, featureFlag, invalidArray }) {
-    const { net, addons, cluster, deploy } = tabValues
+    const { net, cluster, deploy } = tabValues
     const defenderFeatureFlag = featureFlag.includes('defender')
 
     //Initial filter on load
@@ -224,7 +224,7 @@ export default function ({ defaults, tabValues, updateFn, featureFlag, invalidAr
                                 <MessageBar messageBarType={MessageBarType.error}>{getError(invalidArray, 'osDiskType')}</MessageBar>
                             }
                             <TextField label="VM SKU" onChange={(ev, val) => updateFn('vmSize', val)} required errorMessage={getError(invalidArray, 'vmSize')} value={cluster.vmSize} />
-                            <Checkbox checked={cluster.nodePoolSpot} onChange={(ev, val) => updateFn("nodePoolSpot", val)} disabled={cluster.SystemPoolType=='none'} onRenderLabel={() => <Text styles={{ root: { color: 'gray' } }}>Spot Instance</Text>} />
+                            <Checkbox checked={cluster.nodePoolSpot} onChange={(ev, val) => updateFn("nodePoolSpot", val)} disabled={cluster.SystemPoolType === 'none'} onRenderLabel={() => <Text styles={{ root: { color: 'gray' } }}>Spot Instance</Text>} />
                             <ChoiceGroup
                                 onChange={(ev, { key }) => updateFn("osDiskType", key)}
                                 selectedKey={cluster.osDiskType}

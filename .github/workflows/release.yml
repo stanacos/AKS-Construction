@@ -24,7 +24,7 @@ jobs:
   SetupWF:
     runs-on: ubuntu-latest
     outputs:
-      REACT_APP_TEMPLATERELEASE: ${{ github.event.inputs.templateRelease }}
+      VITE_TEMPLATERELEASE: ${{ github.event.inputs.templateRelease }}
     steps:
       - name: Reusable workflow
         run: |
@@ -38,7 +38,7 @@ jobs:
     needs: [SetupWF, CreateRelease]
     uses: ./.github/workflows/ghpagesTest.yml
     with:
-      REACT_APP_TEMPLATERELEASE: ${{ needs.SetupWF.outputs.REACT_APP_TEMPLATERELEASE }}
+      VITE_TEMPLATERELEASE: ${{ needs.SetupWF.outputs.VITE_TEMPLATERELEASE }}
       doAzCmdDeployment: true
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -68,7 +68,7 @@ jobs:
         run: |
           cd helper
           npm install
-          REACT_APP_APPINSIGHTS_KEY=${{ secrets.REACT_APP_APPINSIGHTS_KEY}} REACT_APP_TEMPLATERELEASE="${{env.templateRelease}}"  npm run build
+          VITE_APPINSIGHTS_KEY=${{ secrets.VITE_APPINSIGHTS_KEY}} VITE_TEMPLATERELEASE="${{env.templateRelease}}"  npm run build
 
       - name: Create GitHub pages release artifact
         uses: actions/upload-artifact@v4.3.1

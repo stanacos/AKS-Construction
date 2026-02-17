@@ -58,8 +58,8 @@ test('postdeploy.ps1 references Az-CertManagerIssuer-0.4.0', async () => {
   expect(content).not.toContain('Az-CertManagerIssuer-0.3.0.tgz');
 });
 
-test('deployTab.js references Az-CertManagerIssuer-0.4.0', async () => {
-  const deployTabPath = path.resolve(__dirname, '../src/components/deployTab.js');
+test('deployTab.jsx references Az-CertManagerIssuer-0.4.0', async () => {
+  const deployTabPath = path.resolve(__dirname, '../src/components/deployTab.jsx');
   const content = fs.readFileSync(deployTabPath, 'utf8');
   expect(content).toContain('Az-CertManagerIssuer-0.4.0.tgz');
   expect(content).not.toContain('Az-CertManagerIssuer-0.3.0.tgz');

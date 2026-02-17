@@ -51,9 +51,9 @@ if [[ -n "$EXISTING_PID" ]]; then
     exit 1
 fi
 
-# Start dev server in background (suppress CRA's own browser open)
+# Start dev server in background
 echo "Starting dev server..."
-(cd "$HELPER_DIR" && BROWSER=none npm start) &
+(cd "$HELPER_DIR" && npm start) &
 NPM_PID=$!
 
 # Wait for server to be ready

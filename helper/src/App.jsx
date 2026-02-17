@@ -1,6 +1,6 @@
 import React from 'react';
-import { ConfigContext } from './index'
-import PortalNav from './components/portalnav'
+import { ConfigContext } from './index.jsx'
+import PortalNav from './components/portalnav.jsx'
 
 export default function App() {
 

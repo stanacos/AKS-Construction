@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {CommandBarButton} from '@fluentui/react'
-import { appInsights } from '../index.js'
+import { appInsights } from '../index.jsx'
 
 export function arrayAdd(array, key) {
     return array.includes(key) ? array : array.concat(key)

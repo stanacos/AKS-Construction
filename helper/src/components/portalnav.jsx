@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
-import { Image, ThemeProvider, Link, Toggle, TooltipHost, Pivot, PivotItem, Icon, Stack, Text, Modal, IconButton } from '@fluentui/react';
+import { Image, ThemeProvider, Link, Pivot, PivotItem, Icon, Stack, Text } from '@fluentui/react';
 import { AzureThemeLight, AzureThemeDark } from '@fluentui/azure-themes';
-import { mergeStyles, mergeStyleSets } from '@fluentui/merge-styles';
+import { mergeStyleSets } from '@fluentui/merge-styles';
 
-import NetworkTab from './networkTab'
-import AddonsTab from './addonsTab'
-import ClusterTab, { VMs } from './clusterTab'
-import DeployTab from './deployTab'
+import NetworkTab from './networkTab.jsx'
+import AddonsTab from './addonsTab.jsx'
+import ClusterTab, { VMs } from './clusterTab.jsx'
+import DeployTab from './deployTab.jsx'
 
-import { appInsights } from '../index.js'
+import { appInsights } from '../index.jsx'
 import { generateNintendoClusterName } from '../nintendoNames'
 import { initializeIcons } from '@fluentui/react/lib/Icons';
-import { PreviewDialog } from './previewDialog';
+import { PreviewDialog } from './previewDialog.jsx';
 initializeIcons();
 
 
@@ -117,7 +117,7 @@ export default function PortalNav({ config }) {
   }
 
 
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!urlParams.has('deploy.apiips')) {
       fetch('https://api.ipify.org?format=json').then(response => {
@@ -159,7 +159,7 @@ export default function PortalNav({ config }) {
           ...currentTabValues,
           deploy: {
             ...currentTabValues.deploy,
-            ...(process.env.REACT_APP_TEMPLATERELEASE && { selectedTemplate: process.env.REACT_APP_TEMPLATERELEASE }),
+            ...(import.meta.env.VITE_TEMPLATERELEASE && { selectedTemplate: import.meta.env.VITE_TEMPLATERELEASE }),
             templateVersions: releases
           }
         }
@@ -259,7 +259,7 @@ export default function PortalNav({ config }) {
   invalidFn('addons', 'registry', net.vnetprivateend && (addons.registry !== 'Premium' && addons.registry !== 'none'), 'Premium tier is required for Private Link, either select Premium, or disable Private Link')
   // invalidFn('addons', 'registry', addons.registry !== 'Premium' && addons.registry !== 'none' && addons.enableACRTrustPolicy, 'Premium tier is required for ACR Trust Policy')
   // invalidFn('addons', 'registry', addons.registry !== 'Premium' && addons.registry !== 'none' && addons.acrUntaggedRetentionPolicyEnabled, 'Premium tier is required for ACR Untagged Retention Policy')
-  invalidFn('cluster', 'keyVaultKmsByoKeyId', cluster.keyVaultKms === "byoprivate" && !cluster.keyVaultKmsByoKeyId.match('https:\/\/[^]+.vault.azure.net/keys/[^ ]+/[^ ]+$'), 'Enter valid KeyVault Versioned Key ID (https://YOURVAULTNAME.vault.azure.net/keys/YOURKEYNAME/KEYVERSIONSTRING)')
+  invalidFn('cluster', 'keyVaultKmsByoKeyId', cluster.keyVaultKms === "byoprivate" && !cluster.keyVaultKmsByoKeyId.match('https://[^]+.vault.azure.net/keys/[^ ]+/[^ ]+$'), 'Enter valid KeyVault Versioned Key ID (https://YOURVAULTNAME.vault.azure.net/keys/YOURKEYNAME/KEYVERSIONSTRING)')
   invalidFn('cluster', 'keyVaultKmsByoRG', cluster.keyVaultKms === "byoprivate" && !cluster.keyVaultKmsByoRG, 'Enter existing KeyVault Resource Group Name')
   invalidFn('addons', 'dnsZoneId', addons.dns && !addons.dnsZoneId.match('^/subscriptions/[^/ ]+/resourceGroups/[^/ ]+/providers/Microsoft.Network/(dnszones|privateDnsZones)/[^/ ]+$'), 'Enter valid Azure Public or Private DNS Zone resourceId')
   invalidFn('cluster', 'dnsApiPrivateZoneId', cluster.apisecurity === 'private' && cluster.privateClusterDnsMethod === 'privateDnsZone' && !cluster.dnsApiPrivateZoneId.match('^/subscriptions/[^/ ]+/resourceGroups/[^/ ]+/providers/Microsoft.Network/privateDnsZones/[^/ ]+.azmk8s.io$'), 'Enter valid Azure Private DNS Zone resourceId')
@@ -352,6 +352,5 @@ export default function PortalNav({ config }) {
     </ThemeProvider>
   )
 }
-
 
 

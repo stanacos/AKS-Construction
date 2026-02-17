@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Image, ImageFit, Link, Separator, TextField, DirectionalHint, Callout, Stack, Text, Label, ChoiceGroup, Checkbox, MessageBar, MessageBarType, Slider, Dropdown } from '@fluentui/react';
-import { adv_stackstyle, hasError, getError } from './common'
-import { PreviewDialog } from './previewDialog';
+import { adv_stackstyle, hasError, getError } from './common.jsx'
+import { PreviewDialog } from './previewDialog.jsx';
 
 const columnProps = {
     tokens: { childrenGap: 20 },

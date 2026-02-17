@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import {  Checkbox, Pivot, PivotItem, Image, TextField, Link, Separator, Dropdown, Stack, Text, Label, MessageBar, MessageBarType, PrimaryButton } from '@fluentui/react';
 
-import { CodeBlock, adv_stackstyle, getError, saveToProject } from './common'
-import { appInsights } from '../index.js'
+import { CodeBlock, adv_stackstyle, getError, saveToProject } from './common.jsx'
+import { appInsights } from '../index.jsx'
 import dependencies from "../dependencies.json";
 import locations from '../locations.json';
 
@@ -15,7 +15,6 @@ export default function DeployTab({ defaults, updateFn, tabValues, invalidArray,
   const { net, addons, cluster, deploy } = tabValues
 
   const aks = `aks-${deploy.clusterName}`
-  const agw = `agw-${deploy.clusterName}`
 
   const allok = !(invalidTabs && invalidTabs.length > 0)
   const apiips_array = deploy.apiips ? deploy.apiips.split(',').filter(x => x.trim()) : []
@@ -479,25 +478,6 @@ export default function DeployTab({ defaults, updateFn, tabValues, invalidArray,
 
   const param_file = JSON.stringify(params2file(finalParams), null, 2).replaceAll('\\\\\\', '').replaceAll('\\\\\\', '')
 
-/*
-  const appgw_workaround =
-    // App Gateway addon: see main.bicep DEPLOY_APPGW_ADDON
-    (net.vnet_opt === "byo" && addons.ingress === 'appgw' ? `
-# ------------------------------------------------
-#          Workaround to enable AGIC with BYO VNET
-APPGW_RG_ID="$(az group show -n ${deploy.rg} --query id -o tsv)"
-APPGW_ID="$(az network application-gateway show -g ${deploy.rg} -n ${agw} --query id -o tsv)"
-az aks enable-addons -n ${aks} -g ${deploy.rg} -a ingress-appgw --appgw-id $APPGW_ID
-AKS_AGIC_IDENTITY_ID="$(az aks show -g ${deploy.rg} -n ${aks} --query addonProfiles.ingressApplicationGateway.identity.objectId -o tsv)"
-az role assignment create --role "Contributor" --assignee-principal-type ServicePrincipal --assignee-object-id $AKS_AGIC_IDENTITY_ID --scope $APPGW_ID
-az role assignment create --role "Reader" --assignee-principal-type ServicePrincipal --assignee-object-id $AKS_AGIC_IDENTITY_ID --scope $APPGW_RG_ID
-` : '') +
-    (net.vnet_opt === "byo" && addons.ingress === 'appgw' ? `
-APPGW_IDENTITY="$(az network application-gateway show -g ${deploy.rg} -n ${agw} --query 'keys(identity.userAssignedIdentities)[0]' -o tsv)"
-az role assignment create --role "Managed Identity Operator" --assignee-principal-type ServicePrincipal --assignee-object-id $AKS_AGIC_IDENTITY_ID --scope $APPGW_IDENTITY
-` : '')
-*/
-
   const ghOrg = deploy.githubrepo.replace(/.*com\//, "").replace(/\/.*/, '')
   const ghRepo = deploy.githubrepo.replace(/.*\//, '')
 
@@ -654,7 +634,7 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
               <Dropdown
                 errorMessage={getError(invalidArray, 'selectedTemplate')}
                 label='Template Version'
-                disabled={process.env.REACT_APP_TEMPLATERELEASE !== undefined}
+                disabled={import.meta.env.VITE_TEMPLATERELEASE !== undefined}
                 selectedKey={deploy.selectedTemplate}
                 onChange={(ev, { key }) => updateFn('selectedTemplate', key)}
                 options={deploy.templateVersions}
@@ -693,7 +673,7 @@ az role assignment create --role "Managed Identity Operator" --assignee-principa
             <Dropdown
               errorMessage={getError(invalidArray, 'selectedTemplate')}
               label='Template Version'
-              disabled={process.env.REACT_APP_TEMPLATERELEASE !== undefined}
+              disabled={import.meta.env.VITE_TEMPLATERELEASE !== undefined}
               selectedKey={deploy.selectedTemplate}
               onChange={(ev, { key }) => updateFn('selectedTemplate', key)}
               options={deploy.templateVersions}
@@ -800,7 +780,7 @@ az ad sp delete --id $(az ad sp show --id \${rmId[0]} --query id -o tsv)
               <Stack horizontal tokens={{childrenGap: 5}}>
               <Dropdown
                     label='Template Version'
-                    disabled={process.env.REACT_APP_TEMPLATERELEASE !== undefined}
+                    disabled={import.meta.env.VITE_TEMPLATERELEASE !== undefined}
                     selectedKey={deploy.selectedTemplate}
                     onChange={(ev, { key }) => updateFn('selectedTemplate', key)}
                     options={deploy.templateVersions}

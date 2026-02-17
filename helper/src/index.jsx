@@ -1,24 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './App.jsx';
 import { mergeStyles } from '@fluentui/react';
 
 // Application Insights - https://github.com/microsoft/ApplicationInsights-JS/tree/master/extensions/applicationinsights-react-js
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 // Config
-import baseConfig from "./config.json";
+import baseConfig from './config.json';
 
 const configData = {
   ...baseConfig
 };
 
+const appInsightsKey = import.meta.env.VITE_APPINSIGHTS_KEY;
+
 export const appInsights = new ApplicationInsights({
-  config: { instrumentationKey: process.env.REACT_APP_APPINSIGHTS_KEY }
+  config: { instrumentationKey: appInsightsKey }
 });
-if (process.env.REACT_APP_APPINSIGHTS_KEY) {
+if (appInsightsKey) {
   appInsights.loadAppInsights();
 }
 
@@ -37,12 +38,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ConfigContext.Provider value={configData}>
-        <App />
-      </ConfigContext.Provider>
+      <App />
+    </ConfigContext.Provider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

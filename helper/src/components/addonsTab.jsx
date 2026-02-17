@@ -1,12 +1,10 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
 import { TextField,Link, Separator, Dropdown, Slider, Stack, Text, Label, ChoiceGroup, Checkbox, MessageBar, MessageBarType, SpinButton } from '@fluentui/react';
-import { adv_stackstyle, hasError, getError } from './common'
+import { adv_stackstyle, hasError, getError } from './common.jsx'
 
-export default function ({ tabValues, updateFn, featureFlag, invalidArray,showPreviewModal }) {
+export default function ({ tabValues, updateFn, invalidArray,showPreviewModal }) {
     const { cluster, addons, net } = tabValues
-    const osmFeatureFlag = featureFlag.includes('osm')
-    const wiFeatureFlag = featureFlag.includes('workloadId')
     function setContainerLogV2BasicLogs(v) {
         // Function ensures that the ContainerLogV2 schema is
         // enabled when enabling ContainerLogV2 Basic Logs.
